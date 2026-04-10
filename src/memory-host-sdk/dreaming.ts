@@ -1,6 +1,7 @@
 import path from "node:path";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import type { OpenClawConfig } from "../config/config.js";
+import { isBlockedObjectKey } from "../config/prototype-keys.js";
 import { asNullableRecord } from "../shared/record-coerce.js";
 import {
   lowercasePreservingWhitespace,
@@ -325,7 +326,11 @@ export function resolveMemoryDreamingPluginId(
   const plugins = asNullableRecord(root?.plugins);
   const slots = asNullableRecord(plugins?.slots);
   const configuredSlot = normalizeTrimmedString(slots?.memory);
-  if (configuredSlot && normalizeLowercaseStringOrEmpty(configuredSlot) !== "none") {
+  if (
+    configuredSlot &&
+    normalizeLowercaseStringOrEmpty(configuredSlot) !== "none" &&
+    !isBlockedObjectKey(configuredSlot)
+  ) {
     return configuredSlot;
   }
   return DEFAULT_MEMORY_DREAMING_PLUGIN_ID;

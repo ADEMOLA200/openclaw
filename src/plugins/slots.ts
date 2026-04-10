@@ -135,6 +135,10 @@ export function applyExclusiveSlotSelection(params: {
         if (
           isBundledMemoryCoreDreamingSidecarCandidate({
             ...plugin,
+            // During config selection we already know the new memory-slot owner.
+            // Passing it through both fields keeps the sidecar predicate aligned
+            // with loader-time checks, where either "configured owner" or
+            // "selected owner" can prove another plugin owns the slot.
             slot: params.selectedId,
             selectedId: params.selectedId,
           })
