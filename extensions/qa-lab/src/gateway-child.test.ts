@@ -420,7 +420,7 @@ describe("buildQaRuntimeEnv", () => {
       'OPENCLAW_GATEWAY_TOKEN=qa-suite-token\nOPENAI_API_KEY="openai-live"\nurl=http://127.0.0.1:18789/#token=abc123',
       "utf8",
     );
-    await writeFile(stderrLogPath, "Authorization: Bearer secret-token-123456", "utf8");
+    await writeFile(stderrLogPath, "Authorization: Bearer secret+/token=123456", "utf8");
     await mkdir(path.join(tempRoot, "state"), { recursive: true });
     await writeFile(path.join(tempRoot, "state", "secret.txt"), "do-not-copy", "utf8");
 

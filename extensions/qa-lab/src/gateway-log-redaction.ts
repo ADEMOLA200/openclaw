@@ -35,7 +35,7 @@ export function redactQaGatewayDebugText(text: string) {
   }
   return redacted
     .replaceAll(/\bsk-ant-oat01-[A-Za-z0-9_-]+\b/g, "<redacted>")
-    .replaceAll(/\bBearer\s+[A-Za-z0-9._-]{12,}\b/gi, "Bearer <redacted>")
+    .replaceAll(/\bBearer\s+[^\s"'<>]{8,}/gi, "Bearer <redacted>")
     .replaceAll(/([?#&]token=)[^&\s]+/gi, "$1<redacted>");
 }
 
