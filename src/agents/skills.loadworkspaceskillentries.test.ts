@@ -1,14 +1,21 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { withPathResolutionEnv } from "../test-utils/env.js";
 import { writeSkill } from "./skills.e2e-test-helpers.js";
 import { loadWorkspaceSkillEntries } from "./skills.js";
+import {
+  restoreMockSkillsHomeEnv,
+  setMockSkillsHomeEnv,
+  type SkillsHomeEnvSnapshot,
+} from "./skills/home-env.test-support.js";
 import { readSkillFrontmatterSafe } from "./skills/local-loader.js";
 import { writePluginWithSkill } from "./test-helpers/skill-plugin-fixtures.js";
 
 const tempDirs: string[] = [];
+let fakeHome = "";
+let envSnapshot: SkillsHomeEnvSnapshot;
 
 async function createTempWorkspaceDir() {
   const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-"));
@@ -20,10 +27,20 @@ function withWorkspaceHome<T>(workspaceDir: string, cb: () => T): T {
   return withPathResolutionEnv(workspaceDir, { PATH: "" }, () => cb());
 }
 
+beforeEach(async () => {
+  fakeHome = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-home-"));
+  tempDirs.push(fakeHome);
+  envSnapshot = setMockSkillsHomeEnv(fakeHome);
+});
+
 afterEach(async () => {
-  await Promise.all(
-    tempDirs.splice(0, tempDirs.length).map((dir) => fs.rm(dir, { recursive: true, force: true })),
-  );
+  await restoreMockSkillsHomeEnv(envSnapshot, async () => {
+    await Promise.all(
+      tempDirs
+        .splice(0, tempDirs.length)
+        .map((dir) => fs.rm(dir, { recursive: true, force: true })),
+    );
+  });
 });
 
 async function setupWorkspaceWithProsePlugin() {
